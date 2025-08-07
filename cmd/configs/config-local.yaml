@@ -1,0 +1,9 @@
+app:
+  name: "heli-tech-todoapp"
+  port: 7003
+database:
+  host: "helitech-postgres"
+  port: 5445
+  username: "postgres"
+  password: "secret"
+  db_name: "postgres"
