@@ -2,6 +2,7 @@ package app
 
 import (
 	"github.com/go-playground/validator/v10"
+	tdm "github.com/hajbabaeim/hltchtodo/todo_item"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -11,7 +12,7 @@ type App struct {
 	postgres   *gorm.DB
 	logger     *logrus.Logger
 	validator  *validator.Validate
-	itemModule *td.Module
+	itemModule *tdm.Module
 }
 
 func NewApp() *App {
