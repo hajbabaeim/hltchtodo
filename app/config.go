@@ -7,9 +7,12 @@ import (
 )
 
 type config struct {
-	App struct {
-		Name string `json:"name"`
-		Port int    `json:"port"`
+	Name        string
+	Version     int
+	Environment string
+	App         struct {
+		Address string `json:"address"`
+		Port    int    `json:"port"`
 	}
 	Database struct {
 		Host     string `json:"host"`
@@ -18,6 +21,23 @@ type config struct {
 		Password string `json:"password"`
 		DBName   string `json:"db_name"`
 	}
+	Logger struct {
+		Level string `json:"level"`
+	}
+	SQS SQSConfig
+}
+
+type SQSConfig struct {
+	Region               string `yaml:"region" env:"AWS_REGION" env-default:"us-east-1"`
+	AccessKeyID          string `yaml:"access_key_id" env:"AWS_ACCESS_KEY_ID"`
+	SecretAccessKey      string `yaml:"secret_access_key" env:"AWS_SECRET_ACCESS_KEY"`
+	QueueName            string `yaml:"queue_name" env:"SQS_QUEUE_NAME" env-default:"my-app-queue"`
+	DeadLetterQueueName  string `yaml:"dlq_name" env:"SQS_DLQ_NAME" env-default:"my-app-dlq"`
+	VisibilityTimeoutSec int32  `yaml:"visibility_timeout" env:"SQS_VISIBILITY_TIMEOUT" env-default:"30"`
+	MaxRetries           int32  `yaml:"max_retries" env:"SQS_MAX_RETRIES" env-default:"3"`
+	WaitTimeSeconds      int32  `yaml:"wait_time" env:"SQS_WAIT_TIME" env-default:"20"`
+	MaxMessages          int32  `yaml:"max_messages" env:"SQS_MAX_MESSAGES" env-default:"10"`
+	Endpoint             string `yaml:"endpoint" env:"SQS_ENDPOINT"` // For LocalStack
 }
 
 func whichConfig() string {
@@ -28,7 +48,7 @@ func whichConfig() string {
 	return env
 }
 
-func (a *App) InitConfig() error {
+func (a *App) initConfig() error {
 	filename := fmt.Sprintf("cmd/configs/config-%s.json", whichConfig())
 	data, err := os.ReadFile(filename)
 	if err != nil {
@@ -40,15 +60,4 @@ func (a *App) InitConfig() error {
 	}
 	a.config = &cfg
 	return nil
-}
-
-func (a *App) dBConnectionString(cfg *config) string {
-	return fmt.Sprintf(
-		"postgresql://%s:%s@%s:%d/%s?sslmode=disable&client_encoding=UTF8",
-		cfg.Database.Username,
-		cfg.Database.Password,
-		cfg.Database.Host,
-		cfg.Database.Port,
-		cfg.Database.DBName,
-	)
 }

@@ -8,16 +8,18 @@ import (
 )
 
 type App struct {
-	config     *config
-	postgres   *gorm.DB
-	logger     *logrus.Logger
-	validator  *validator.Validate
-	itemModule *tdm.Module
+	config         *config
+	postgres       *gorm.DB
+	logger         *logrus.Logger
+	validator      *validator.Validate
+	todoItemModule *tdm.Module
+	sqs            *SQSClient
+	//httpServer     *http.Server
 }
 
 func NewApp() *App {
 	a := new(App)
-	if err := a.InitConfig(); err != nil {
+	if err := a.initConfig(); err != nil {
 		a.panicOnError(err)
 	}
 	return a
@@ -27,4 +29,15 @@ func (a *App) panicOnError(err error) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func (a *App) Init() {
+	a.initLogger()
+	a.initValidator()
+	a.initPostgres()
+	a.initSQS()
+}
+
+func (a *App) InitModules() {
+	a.initTodoItemModule()
 }

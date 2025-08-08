@@ -1,5 +1,7 @@
+name: "helitech"
+version: 1.0
+environment: "local"
 app:
-  name: "heli-tech-todoapp"
   port: 7003
 database:
   host: "helitech-postgres"
@@ -7,3 +9,16 @@ database:
   username: "postgres"
   password: "secret"
   db_name: "postgres"
+logger:
+  level: 5
+sqs:
+  region: "us-east-1"
+  accessKeyId: "access-key"
+  secretAccessKey: "secret-key"
+  queueName: "main-queue"
+  deadLetterQueueName: "dlq"
+  visibilityTimeout: 30
+  maxRetries: 3
+  waitTime: 20
+  maxMessages: 10
+  endpoint: "http://localhost:4566"
