@@ -29,7 +29,14 @@ func (s *server) GetRouter() *gin.Engine {
 }
 
 func (s *server) SetupRoutes() {
-	//s.router.GET("/health", s.healthCheck)
+	// handling check health requests
+	s.router.GET("/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  "ok",
+			"service": "todo-item",
+		})
+	})
+	// handling other requests
 	api := s.router.Group("/api/v1")
 	{
 		todo := api.Group("/todos")
