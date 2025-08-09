@@ -14,7 +14,6 @@ type App struct {
 	validator      *validator.Validate
 	todoItemModule *tdm.Module
 	sqs            *SQSClient
-	//httpServer     *http.Server
 }
 
 func NewApp() *App {

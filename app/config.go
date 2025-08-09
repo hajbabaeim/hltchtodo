@@ -14,20 +14,14 @@ type config struct {
 		Address string `json:"address"`
 		Port    int    `json:"port"`
 	}
-	Database struct {
-		Host     string `json:"host"`
-		Port     int    `json:"port"`
-		Username string `json:"username"`
-		Password string `json:"password"`
-		DBName   string `json:"db_name"`
-	}
 	Logger struct {
 		Level string `json:"level"`
 	}
-	SQS SQSConfig
+	Database postgresConfig
+	SQS      sqsConfig
 }
 
-type SQSConfig struct {
+type sqsConfig struct {
 	Region               string `yaml:"region" env:"AWS_REGION" env-default:"us-east-1"`
 	AccessKeyID          string `yaml:"access_key_id" env:"AWS_ACCESS_KEY_ID"`
 	SecretAccessKey      string `yaml:"secret_access_key" env:"AWS_SECRET_ACCESS_KEY"`
@@ -38,6 +32,14 @@ type SQSConfig struct {
 	WaitTimeSeconds      int32  `yaml:"wait_time" env:"SQS_WAIT_TIME" env-default:"20"`
 	MaxMessages          int32  `yaml:"max_messages" env:"SQS_MAX_MESSAGES" env-default:"10"`
 	Endpoint             string `yaml:"endpoint" env:"SQS_ENDPOINT"` // For LocalStack
+}
+
+type postgresConfig struct {
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+	DBName   string `json:"db_name"`
 }
 
 func whichConfig() string {
