@@ -4,7 +4,7 @@ environment: "local"
 app:
   port: 7003
 database:
-  host: "helitech-postgres"
+  host: "ht-postgres"
   port: 5445
   username: "postgres"
   password: "secret"
@@ -15,7 +15,7 @@ sqs:
   region: "us-east-1"
   accessKeyId: "access-key"
   secretAccessKey: "secret-key"
-  queueName: "main-queue"
+  queueName: "ht-queue"
   deadLetterQueueName: "dlq"
   visibilityTimeout: 30
   maxRetries: 3

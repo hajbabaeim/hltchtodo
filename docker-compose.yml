@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: ht-postgres
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5445:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - content
+
+  localstack:
+    image: localstack/localstack:4.7
+    container_name: ht-localstack
+    environment:
+      - SERVICES=sqs
+      - DEBUG=0
+      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+    ports:
+      - "4566:4566"
+    volumes:
+      - localstack_data:/var/lib/localstack
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - content
+
+  sqs-setup:
+    image: amazon/aws-cli:2.28.6
+    container_name: ht-sqs
+    environment:
+      - AWS_ACCESS_KEY_ID=access-test
+      - AWS_SECRET_ACCESS_KEY=secret-key
+      - AWS_DEFAULT_REGION=us-east-1
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        sleep 10
+        aws --endpoint-url=http://localstack:4566 sqs create-queue --queue-name ht-queue
+        echo "SQS queue 'ht-queue' created successfully"
+    depends_on:
+      localstack:
+        condition: service_healthy
+    networks:
+      - content
+
+  app:
+    build: .
+    container_name: ht-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
+      sqs-setup:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    networks:
+      - content
+
+volumes:
+  postgres_data:
+  localstack_data:
+
+networks:
+  content:
+    driver: bridge
