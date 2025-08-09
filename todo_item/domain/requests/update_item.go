@@ -6,10 +6,9 @@ import (
 )
 
 type UpdateItemRequest struct {
-	Id          uint64    `json:"id"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	DueDate     time.Time `json:"dueDate"`
+	Id          *uint64    `json:"id"`
+	Description *string    `json:"description"`
+	DueDate     *time.Time `json:"dueDate"`
 }
 
 func (r *UpdateItemRequest) Validate(v *validator.Validate) error {
