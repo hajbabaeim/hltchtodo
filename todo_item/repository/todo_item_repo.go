@@ -23,13 +23,9 @@ func (r *repo) GetItemByID(id uint64) (*domain.TodoItem, error) {
 	return &item, nil
 }
 
-func (r *repo) GetItemByUUID(uid string) (*domain.TodoItem, error) {
+func (r *repo) GetItemByUUID(uid uuid.UUID) (*domain.TodoItem, error) {
 	var item domain.TodoItem
-	uuidValue, err := uuid.Parse(uid)
-	if err != nil {
-		return nil, errors.New("uuid error")
-	}
-	err = r.db.Where("uuid=?", uuidValue).First(&item).Error
+	err := r.db.Where("uuid=?", uid).First(&item).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("item not found")
@@ -43,7 +39,7 @@ func (r *repo) UpdateItem(item *domain.TodoItem) error {
 	return r.db.Save(item).Error
 }
 
-func (r *repo) DeleteItem(id uint64) error {
+func (r *repo) DeleteItem(id uuid.UUID) error {
 	return r.db.Delete(id).Error
 }
 
