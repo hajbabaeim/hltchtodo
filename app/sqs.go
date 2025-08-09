@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
+	awsc "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
@@ -16,7 +16,7 @@ type SQSClient struct {
 	client   *sqs.Client
 	queueURL string
 	dlqURL   string
-	config   SQSConfig
+	config   sqsConfig
 	logger   *logrus.Logger
 }
 
@@ -63,9 +63,9 @@ func (a *App) initSQS() {
 
 func (a *App) loadAWSConfig(ctx context.Context) (aws.Config, error) {
 	// Load region + static creds (for LocalStack or testing)
-	return config.LoadDefaultConfig(ctx,
-		config.WithRegion(a.config.SQS.Region),
-		config.WithCredentialsProvider(
+	return awsc.LoadDefaultConfig(ctx,
+		awsc.WithRegion(a.config.SQS.Region),
+		awsc.WithCredentialsProvider(
 			credentials.NewStaticCredentialsProvider(
 				a.config.SQS.AccessKeyID,
 				a.config.SQS.SecretAccessKey,
