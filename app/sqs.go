@@ -91,8 +91,8 @@ func (s *SQSClient) setupQueues(ctx context.Context) error {
 
 	// Setup main queue with DLQ redrive policy
 	queueAttributes := map[string]string{
-		string(types.QueueAttributeNameVisibilityTimeout):             fmt.Sprintf("%d", s.config.VisibilityTimeoutSec),
-		string(types.QueueAttributeNameReceiveMessageWaitTimeSeconds): fmt.Sprintf("%d", s.config.WaitTimeSeconds),
+		string(types.QueueAttributeNameVisibilityTimeout):             fmt.Sprintf("%d", s.config.VisibilityTimeout),
+		string(types.QueueAttributeNameReceiveMessageWaitTimeSeconds): fmt.Sprintf("%d", s.config.WaitTime),
 		string(types.QueueAttributeNameRedrivePolicy):                 fmt.Sprintf(`{"deadLetterTargetArn":"%s","maxReceiveCount":%d}`, dlqArn, s.config.MaxRetries),
 	}
 

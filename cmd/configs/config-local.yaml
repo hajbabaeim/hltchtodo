@@ -10,7 +10,7 @@ database:
   password: "secret"
   db_name: "postgres"
 logger:
-  level: 5
+  level: "debug"
 sqs:
   region: "us-east-1"
   accessKeyId: "access-key"
