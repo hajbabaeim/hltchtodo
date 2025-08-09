@@ -6,7 +6,6 @@ import (
 )
 
 type CreateItemRequest struct {
-	Title       string    `json:"title" validate:"omitempty,alphaunicode"`
 	Description string    `json:"description" validate:"omitempty,alphaunicode"`
 	DueDate     time.Time `json:"dueDate" validate:"omitempty,due_date_validator"`
 }
