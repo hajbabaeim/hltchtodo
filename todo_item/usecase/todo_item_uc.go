@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
@@ -12,16 +11,12 @@ import (
 	"github.com/hajbabaeim/hltchtodo/helpers"
 	"github.com/hajbabaeim/hltchtodo/todo_item/domain"
 	"github.com/hajbabaeim/hltchtodo/todo_item/domain/requests"
-	"strings"
-	"time"
 )
 
 func (uc *usecase) CreateItem(ctx context.Context, req *requests.CreateItemRequest) (*domain.TodoItem, error) {
 	item := new(domain.TodoItem)
-	layout := "2006-01-02 15:04:05" // Input request time-format "YYYY-MM-DD HH:MM:SS"
-	parsedTime, err := time.Parse(layout, req.DueDate)
+	parsedTime, err := helpers.ConvertStringTime(req.DueDate)
 	if err != nil {
-		fmt.Println("Error parsing time:", err)
 		return nil, err
 	}
 	item.DueDate = parsedTime
@@ -94,7 +89,7 @@ func (uc *usecase) UpdateItem(ctx context.Context, req *requests.UpdateItemReque
 	if req.Description != nil && oldItem.Description != *req.Description {
 		oldItem.Description = *req.Description
 	}
-	if req.DueDate != nil && len(strings.Split(*req.DueDate, " ")) == 2 {
+	if req.DueDate != nil {
 		parsedTime, err := helpers.ConvertStringTime(*req.DueDate)
 		if err != nil {
 			return nil, err

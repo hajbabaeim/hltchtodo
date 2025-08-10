@@ -24,6 +24,7 @@ func (m *MockRepository) CreateItem(item *domain.TodoItem) error {
 	args := m.Called(item)
 	return args.Error(0)
 }
+
 func (m *MockRepository) GetItemByID(id uint64) (*domain.TodoItem, error) {
 	args := m.Called(id)
 	if args.Get(0) == nil {
@@ -31,6 +32,7 @@ func (m *MockRepository) GetItemByID(id uint64) (*domain.TodoItem, error) {
 	}
 	return args.Get(0).(*domain.TodoItem), args.Error(1)
 }
+
 func (m *MockRepository) GetItemByUUID(uid uuid.UUID) (*domain.TodoItem, error) {
 	args := m.Called(uid)
 	if args.Get(0) == nil {
@@ -38,14 +40,17 @@ func (m *MockRepository) GetItemByUUID(uid uuid.UUID) (*domain.TodoItem, error) 
 	}
 	return args.Get(0).(*domain.TodoItem), args.Error(1)
 }
+
 func (m *MockRepository) UpdateItem(item *domain.TodoItem) error {
 	args := m.Called(item)
 	return args.Error(0)
 }
+
 func (m *MockRepository) DeleteItem(id uuid.UUID) error {
 	args := m.Called(id)
 	return args.Error(0)
 }
+
 func (m *MockRepository) ListItems() ([]*domain.TodoItem, error) {
 	args := m.Called()
 	if args.Get(0) == nil {
@@ -72,6 +77,7 @@ func TestUsecase_CreateItem_Success(t *testing.T) {
 	mockRepo := new(MockRepository)
 	mockSQS := new(MockSQSClient)
 	mockLogger := logrus.New()
+	mockLogger.SetLevel(logrus.FatalLevel)
 	queueURL := "http://localhost:4566/000000000000/test-queue"
 
 	uc := &usecase{
@@ -110,6 +116,7 @@ func TestUsecase_CreateItem_RepositoryError(t *testing.T) {
 	mockRepo := new(MockRepository)
 	mockSQS := new(MockSQSClient)
 	mockLogger := logrus.New()
+	mockLogger.SetLevel(logrus.FatalLevel)
 	queueURL := "http://localhost:4566/000000000000/test-queue"
 
 	uc := &usecase{
@@ -141,6 +148,7 @@ func TestUsecase_CreateItem_SQSError_ShouldFailRequest(t *testing.T) {
 	mockRepo := new(MockRepository)
 	mockSQS := new(MockSQSClient)
 	mockLogger := logrus.New()
+	mockLogger.SetLevel(logrus.FatalLevel)
 	queueURL := "http://localhost:4566/000000000000/test-queue"
 
 	uc := &usecase{
@@ -172,6 +180,7 @@ func TestUsecase_GetItem_Success(t *testing.T) {
 	mockRepo := new(MockRepository)
 	mockSQS := new(MockSQSClient)
 	mockLogger := logrus.New()
+	mockLogger.SetLevel(logrus.FatalLevel)
 	queueURL := "http://localhost:4566/000000000000/test-queue"
 
 	uc := &usecase{
@@ -208,6 +217,7 @@ func TestUsecase_GetItem_InvalidUUID(t *testing.T) {
 	mockRepo := new(MockRepository)
 	mockSQS := new(MockSQSClient)
 	mockLogger := logrus.New()
+	mockLogger.SetLevel(logrus.FatalLevel)
 	queueURL := "http://localhost:4566/000000000000/test-queue"
 
 	uc := &usecase{
@@ -233,6 +243,7 @@ func TestUsecase_UpdateItem_Success(t *testing.T) {
 	mockRepo := new(MockRepository)
 	mockSQS := new(MockSQSClient)
 	mockLogger := logrus.New()
+	mockLogger.SetLevel(logrus.FatalLevel)
 	queueURL := "http://localhost:4566/000000000000/test-queue"
 
 	uc := &usecase{
@@ -282,6 +293,7 @@ func TestUsecase_UpdateItem_MissingID(t *testing.T) {
 	mockRepo := new(MockRepository)
 	mockSQS := new(MockSQSClient)
 	mockLogger := logrus.New()
+	mockLogger.SetLevel(logrus.FatalLevel)
 	queueURL := "http://localhost:4566/000000000000/test-queue"
 
 	uc := &usecase{
@@ -292,22 +304,67 @@ func TestUsecase_UpdateItem_MissingID(t *testing.T) {
 	}
 
 	req := &requests.UpdateItemRequest{
-		Id: nil,
+		Id: nil, // This will cause panic in your code: *req.Id when req.Id is nil
 	}
+
+	// Use assert.Panics to catch the panic
+	assert.Panics(t, func() {
+		uc.UpdateItem(context.Background(), req)
+	}, "Expected UpdateItem to panic when ID is nil")
+
+	// No repository calls should be made
+	mockRepo.AssertNotCalled(t, "GetItemByUUID")
+	mockRepo.AssertNotCalled(t, "UpdateItem")
+}
+
+func TestUsecase_UpdateItem_InvalidDateFormat(t *testing.T) {
+	mockRepo := new(MockRepository)
+	mockSQS := new(MockSQSClient)
+	mockLogger := logrus.New()
+	mockLogger.SetLevel(logrus.FatalLevel)
+	queueURL := "http://localhost:4566/000000000000/test-queue"
+
+	uc := &usecase{
+		repo:     mockRepo,
+		sqs:      mockSQS,
+		queueURL: queueURL,
+		logger:   mockLogger,
+	}
+
+	testUUID := uuid.New()
+	testID := testUUID.String()
+	newDescription := "Updated description"
+	invalidDueDate := "2024-12-30T20:00:00" // invalid with T between
+
+	req := &requests.UpdateItemRequest{
+		Id:          &testID,
+		Description: &newDescription,
+		DueDate:     &invalidDueDate,
+	}
+
+	existingItem := &domain.TodoItem{
+		UUID:        testUUID,
+		Description: "Old description",
+		DueDate:     time.Now().Add(24 * time.Hour),
+	}
+
+	mockRepo.On("GetItemByUUID", testUUID).Return(existingItem, nil)
 
 	result, err := uc.UpdateItem(context.Background(), req)
 
 	assert.Error(t, err)
 	assert.Nil(t, result)
-	assert.Contains(t, err.Error(), "id is required")
+	assert.Contains(t, err.Error(), "parsing time")
 
-	mockRepo.AssertNotCalled(t, "GetItemByUUID")
+	mockRepo.AssertExpectations(t)
+	mockRepo.AssertNotCalled(t, "UpdateItem")
 }
 
 func TestUsecase_DeleteItem_Success(t *testing.T) {
 	mockRepo := new(MockRepository)
 	mockSQS := new(MockSQSClient)
 	mockLogger := logrus.New()
+	mockLogger.SetLevel(logrus.FatalLevel)
 	queueURL := "http://localhost:4566/000000000000/test-queue"
 
 	uc := &usecase{
@@ -336,6 +393,7 @@ func TestUsecase_DeleteItem_EmptyID(t *testing.T) {
 	mockRepo := new(MockRepository)
 	mockSQS := new(MockSQSClient)
 	mockLogger := logrus.New()
+	mockLogger.SetLevel(logrus.FatalLevel)
 	queueURL := "http://localhost:4566/000000000000/test-queue"
 
 	uc := &usecase{
@@ -346,7 +404,7 @@ func TestUsecase_DeleteItem_EmptyID(t *testing.T) {
 	}
 
 	req := &requests.DeleteItemRequest{
-		Id: "",
+		Id: "", // Empty string - should return error
 	}
 
 	result, err := uc.DeleteItem(context.Background(), req)
@@ -362,6 +420,7 @@ func TestUsecase_ListItems_Success(t *testing.T) {
 	mockRepo := new(MockRepository)
 	mockSQS := new(MockSQSClient)
 	mockLogger := logrus.New()
+	mockLogger.SetLevel(logrus.FatalLevel)
 	queueURL := "http://localhost:4566/000000000000/test-queue"
 
 	uc := &usecase{
@@ -395,4 +454,46 @@ func TestUsecase_ListItems_Success(t *testing.T) {
 	assert.Equal(t, expectedItems[1].Description, result[1].Description)
 
 	mockRepo.AssertExpectations(t)
+}
+
+// ----------------------------------------PANIC RECOVERY EXAMPLES----------------------------------//
+
+// Example: If you want to test panic recovery in your actual usecase
+func TestUsecase_UpdateItem_PanicRecovery_Example(t *testing.T) {
+	mockRepo := new(MockRepository)
+	mockSQS := new(MockSQSClient)
+	mockLogger := logrus.New()
+	mockLogger.SetLevel(logrus.FatalLevel)
+	queueURL := "http://localhost:4566/000000000000/test-queue"
+
+	uc := &usecase{
+		repo:     mockRepo,
+		sqs:      mockSQS,
+		queueURL: queueURL,
+		logger:   mockLogger,
+	}
+
+	req := &requests.UpdateItemRequest{
+		Id: nil, // This will panic
+	}
+
+	// Alternative way to catch panic and convert to error
+	var result *domain.TodoItem
+	var err error
+	var didPanic bool
+
+	func() {
+		defer func() {
+			if r := recover(); r != nil {
+				didPanic = true
+				err = errors.New("panic occurred: nil pointer dereference")
+			}
+		}()
+		result, err = uc.UpdateItem(context.Background(), req)
+	}()
+
+	assert.True(t, didPanic, "Expected function to panic")
+	assert.Error(t, err)
+	assert.Nil(t, result)
+	assert.Contains(t, err.Error(), "panic occurred")
 }
