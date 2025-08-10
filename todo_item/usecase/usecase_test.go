@@ -304,15 +304,13 @@ func TestUsecase_UpdateItem_MissingID(t *testing.T) {
 	}
 
 	req := &requests.UpdateItemRequest{
-		Id: nil, // This will cause panic in your code: *req.Id when req.Id is nil
+		Id: nil, // cause panic since req.Id is nil
 	}
 
-	// Use assert.Panics to catch the panic
 	assert.Panics(t, func() {
 		uc.UpdateItem(context.Background(), req)
 	}, "Expected UpdateItem to panic when ID is nil")
 
-	// No repository calls should be made
 	mockRepo.AssertNotCalled(t, "GetItemByUUID")
 	mockRepo.AssertNotCalled(t, "UpdateItem")
 }
@@ -456,9 +454,6 @@ func TestUsecase_ListItems_Success(t *testing.T) {
 	mockRepo.AssertExpectations(t)
 }
 
-// ----------------------------------------PANIC RECOVERY EXAMPLES----------------------------------//
-
-// Example: If you want to test panic recovery in your actual usecase
 func TestUsecase_UpdateItem_PanicRecovery_Example(t *testing.T) {
 	mockRepo := new(MockRepository)
 	mockSQS := new(MockSQSClient)
@@ -474,10 +469,9 @@ func TestUsecase_UpdateItem_PanicRecovery_Example(t *testing.T) {
 	}
 
 	req := &requests.UpdateItemRequest{
-		Id: nil, // This will panic
+		Id: nil,
 	}
 
-	// Alternative way to catch panic and convert to error
 	var result *domain.TodoItem
 	var err error
 	var didPanic bool

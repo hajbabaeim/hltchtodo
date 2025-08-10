@@ -62,7 +62,6 @@ func (a *App) initSQS() {
 }
 
 func (a *App) loadAWSConfig(ctx context.Context) (aws.Config, error) {
-	// Load region + static creds (for LocalStack or testing)
 	return awsc.LoadDefaultConfig(ctx,
 		awsc.WithRegion(a.config.SQS.Region),
 		awsc.WithCredentialsProvider(
