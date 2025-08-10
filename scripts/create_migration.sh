@@ -16,7 +16,7 @@ if [[ ! -d "${migration_dir}" ]]; then
   echo "successfully created"
 fi
 
-echo -e "-- +migration Up\n\n" > "${file_path}"
-echo -e "-- +migration Down\n\n" >> "${file_path}"
+echo -e "-- +migrate Up\n\n" > "${file_path}"
+echo -e "-- +migrate Down\n\n" >> "${file_path}"
 
 echo "Migration file ${file_name} created successfully inside the ${migration_dir} directory"

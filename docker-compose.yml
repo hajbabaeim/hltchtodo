@@ -24,20 +24,22 @@ services:
     image: localstack/localstack:4.7
     container_name: ht-localstack
     environment:
-      - SERVICES=sqs
+      - SERVICES=ht-sqs
       - DEBUG=0
       - AWS_DEFAULT_REGION=us-east-1
-      - AWS_ACCESS_KEY_ID=test
-      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_ACCESS_KEY_ID=access-test
+      - AWS_SECRET_ACCESS_KEY=secret-test
+      - SKIP_INFRA_DOWNLOADS=1
+      - DISABLE_EVENTS=1
     ports:
       - "4566:4566"
     volumes:
       - localstack_data:/var/lib/localstack
       - /var/run/docker.sock:/var/run/docker.sock
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4566/health"]
-      interval: 10s
-      timeout: 5s
+      test: ["CMD", "sh", "-c", "curl -s http://localhost:4566/_localstack/health | grep -q '\"sqs\": \"available\"' || exit 1"]
+      interval: 15s
+      timeout: 10s
       retries: 5
       start_period: 30s
     networks:
@@ -48,7 +50,7 @@ services:
     container_name: ht-sqs
     environment:
       - AWS_ACCESS_KEY_ID=access-test
-      - AWS_SECRET_ACCESS_KEY=secret-key
+      - AWS_SECRET_ACCESS_KEY=secret-test
       - AWS_DEFAULT_REGION=us-east-1
     entrypoint: ["/bin/sh", "-c"]
     command:

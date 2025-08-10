@@ -1,7 +1,6 @@
 package http
 
 import (
-	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/hajbabaeim/hltchtodo/todo_item/abstraction"
 	"github.com/hajbabaeim/hltchtodo/todo_item/delivery"
@@ -18,10 +17,6 @@ func NewServer(todoUsecase abstraction.Usecase) *server {
 		todoUc: todoUsecase,
 		router: gin.Default(),
 	}
-}
-
-func (s *server) Run(ctx context.Context) error {
-	return nil
 }
 
 func (s *server) GetRouter() *gin.Engine {

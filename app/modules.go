@@ -5,5 +5,5 @@ import (
 )
 
 func (a *App) initTodoItemModule() {
-	a.todoItemModule = tdim.NewModule(a.postgres)
+	a.todoItemModule = tdim.NewModule(a.postgres, a.sqs.client, a.sqs.queueURL, a.logger)
 }
