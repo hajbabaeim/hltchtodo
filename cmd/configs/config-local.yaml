@@ -2,19 +2,20 @@ name: "helitech"
 version: 1.0
 environment: "local"
 app:
-  port: 7003
+  port: 8080
 database:
-  host: "ht-postgres"
+  host: "localhost"
+#  host: "ht-postgres"
   port: 5445
-  username: "postgres"
+  username: "user"
   password: "secret"
   db_name: "postgres"
 logger:
   level: "debug"
 sqs:
   region: "us-east-1"
-  accessKeyId: "access-key"
-  secretAccessKey: "secret-key"
+  accessKeyId: "access-test"
+  secretAccessKey: "secret-test"
   queueName: "ht-queue"
   deadLetterQueueName: "dlq"
   visibilityTimeout: 30

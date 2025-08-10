@@ -34,6 +34,7 @@ func (a *App) Init() {
 	a.initLogger()
 	a.initValidator()
 	a.initPostgres()
+	a.sqlMigrate()
 	a.initSQS()
 }
 
