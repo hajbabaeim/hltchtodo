@@ -1,8 +1,8 @@
 package delivery
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/hajbabaeim/hltchtodo/helpers"
 	"github.com/hajbabaeim/hltchtodo/todo_item/abstraction"
 	"github.com/hajbabaeim/hltchtodo/todo_item/domain"
 	"github.com/hajbabaeim/hltchtodo/todo_item/domain/requests"
@@ -19,13 +19,10 @@ func CreateTodoItem(c *gin.Context, uc abstraction.Usecase) (*domain.TodoItem, e
 
 func (d *createItemDelivery) handler(c *gin.Context) (*domain.TodoItem, error) {
 	ctx := c.Request.Context()
-	body, err := c.Request.GetBody()
-	if err != nil {
+	var req requests.CreateItemRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
 		return nil, err
 	}
-	req, err := helpers.Convert(body, new(requests.CreateItemRequest))
-	if err != nil {
-		return nil, err
-	}
-	return d.uc.CreateItem(ctx, req)
+	fmt.Printf(" + + + + + +the body: %+v\n", req)
+	return d.uc.CreateItem(ctx, &req)
 }

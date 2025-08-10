@@ -12,3 +12,5 @@ type TodoItem struct {
 	Description string    `json:"description" gorm:"description"`
 	DueDate     time.Time `json:"dueDate" gorm:"due_date"`
 }
+
+func (TodoItem) TableName() string { return "todo_items" }

@@ -2,13 +2,12 @@ package requests
 
 import (
 	"github.com/go-playground/validator/v10"
-	"time"
 )
 
 type UpdateItemRequest struct {
-	Id          *uint64    `json:"id"`
-	Description *string    `json:"description"`
-	DueDate     *time.Time `json:"dueDate"`
+	Id          *string `json:"id"`
+	Description *string `json:"description"`
+	DueDate     *string `json:"due_date"`
 }
 
 func (r *UpdateItemRequest) Validate(v *validator.Validate) error {

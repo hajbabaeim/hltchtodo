@@ -40,7 +40,7 @@ func (r *repo) UpdateItem(item *domain.TodoItem) error {
 }
 
 func (r *repo) DeleteItem(id uuid.UUID) error {
-	return r.db.Delete(id).Error
+	return r.db.Where("uuid=?", id).Delete(&domain.TodoItem{}).Error
 }
 
 func (r *repo) ListItems() ([]*domain.TodoItem, error) {

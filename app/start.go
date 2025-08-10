@@ -1,7 +1,8 @@
 package app
 
 import (
-	"context"
+	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/hajbabaeim/hltchtodo/server/http"
 	"os"
 	"os/signal"
@@ -9,14 +10,16 @@ import (
 )
 
 func (a *App) Start() {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	//ctx, cancel := context.WithCancel(context.Background())
+	//defer cancel()
 	server := http.NewServer(a.todoItemModule.UseCase)
-	go func() {
-		if err := server.Run(ctx); err != nil {
+	server.SetupRoutes()
+	router := server.GetRouter()
+	go func(r *gin.Engine) {
+		if err := r.Run(fmt.Sprintf(":%d", a.config.App.Port)); err != nil {
 			a.logger.Errorf("failed to start server: %v", err)
 		}
-	}()
+	}(router)
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)

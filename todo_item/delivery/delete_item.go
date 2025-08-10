@@ -2,7 +2,6 @@ package delivery
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/hajbabaeim/hltchtodo/helpers"
 	"github.com/hajbabaeim/hltchtodo/todo_item/abstraction"
 	"github.com/hajbabaeim/hltchtodo/todo_item/domain/requests"
 )
@@ -18,9 +17,7 @@ func DeleteTodoItem(c *gin.Context, uc abstraction.Usecase) (bool, error) {
 
 func (d *deleteItemDelivery) handler(c *gin.Context) (bool, error) {
 	ctx := c.Request.Context()
-	req, err := helpers.Convert(c.Request.Body, new(requests.DeleteItemRequest))
-	if err != nil {
-		return false, err
-	}
+	req := new(requests.DeleteItemRequest)
+	req.Id = c.Param("id")
 	return d.uc.DeleteItem(ctx, req)
 }
