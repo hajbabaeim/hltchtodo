@@ -1,8 +1,6 @@
-version: '3.8'
-
 services:
   postgres:
-    image: postgres:17-alpine
+    image: timescale/timescaledb-ha:pg16
     container_name: ht-postgres
     environment:
       POSTGRES_DB: postgres
@@ -12,8 +10,15 @@ services:
       - "5445:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U user -d postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     networks:
       - content
+    restart: unless-stopped
 
   localstack:
     image: localstack/localstack:4.7
@@ -29,6 +34,12 @@ services:
     volumes:
       - localstack_data:/var/lib/localstack
       - /var/run/docker.sock:/var/run/docker.sock
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     networks:
       - content
 
