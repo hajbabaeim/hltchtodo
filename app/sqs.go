@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-type SQSClient struct {
+type sqsClient struct {
 	client   *sqs.Client
 	queueURL string
 	dlqURL   string
@@ -31,15 +31,15 @@ func (a *App) initSQS() {
 	}
 
 	// Create SQS client
-	sqsClient := sqs.NewFromConfig(cfg, func(o *sqs.Options) {
+	client := sqs.NewFromConfig(cfg, func(o *sqs.Options) {
 		if a.config.SQS.Endpoint != "" {
 			o.BaseEndpoint = aws.String(a.config.SQS.Endpoint)
 		}
 	})
 
 	// Initialize SQS wrapper
-	a.sqs = &SQSClient{
-		client: sqsClient,
+	a.sqs = &sqsClient{
+		client: client,
 		config: a.config.SQS,
 		logger: a.logger,
 	}
@@ -75,7 +75,7 @@ func (a *App) loadAWSConfig(ctx context.Context) (aws.Config, error) {
 	)
 }
 
-func (s *SQSClient) setupQueues(ctx context.Context) error {
+func (s *sqsClient) setupQueues(ctx context.Context) error {
 	// Setup Dead Letter Queue first
 	dlqURL, err := s.getOrCreateQueue(ctx, s.config.DeadLetterQueueName, nil)
 	if err != nil {
@@ -105,7 +105,7 @@ func (s *SQSClient) setupQueues(ctx context.Context) error {
 	return nil
 }
 
-func (s *SQSClient) getOrCreateQueue(ctx context.Context, queueName string, attributes map[string]string) (string, error) {
+func (s *sqsClient) getOrCreateQueue(ctx context.Context, queueName string, attributes map[string]string) (string, error) {
 	// Try to get existing queue URL
 	getQueueUrlInput := &sqs.GetQueueUrlInput{
 		QueueName: &queueName,
@@ -136,7 +136,7 @@ func (s *SQSClient) getOrCreateQueue(ctx context.Context, queueName string, attr
 	return *createResult.QueueUrl, nil
 }
 
-func (s *SQSClient) getQueueArn(ctx context.Context, queueURL string) (string, error) {
+func (s *sqsClient) getQueueArn(ctx context.Context, queueURL string) (string, error) {
 	input := &sqs.GetQueueAttributesInput{
 		QueueUrl: &queueURL,
 		AttributeNames: []types.QueueAttributeName{
@@ -157,7 +157,7 @@ func (s *SQSClient) getQueueArn(ctx context.Context, queueURL string) (string, e
 	return arn, nil
 }
 
-func (s *SQSClient) healthCheck(ctx context.Context) error {
+func (s *sqsClient) healthCheck(ctx context.Context) error {
 	input := &sqs.GetQueueAttributesInput{
 		QueueUrl: &s.queueURL,
 		AttributeNames: []types.QueueAttributeName{

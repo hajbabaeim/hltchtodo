@@ -17,6 +17,7 @@ type Module struct {
 func NewModule(db *gorm.DB, sqs *sqs.Client, queueURL string, logger *logrus.Logger) *Module {
 	m := new(Module)
 	m.Repo = repository.NewRepository(db)
-	m.UseCase = usecase.NewUsecase(m.Repo, sqs, queueURL, logger)
+	sqsWrapped := usecase.NewSQSClientWrapper(sqs)
+	m.UseCase = usecase.NewUsecase(m.Repo, sqsWrapped, queueURL, logger)
 	return m
 }

@@ -13,7 +13,7 @@ type App struct {
 	logger         *logrus.Logger
 	validator      *validator.Validate
 	todoItemModule *tdm.Module
-	sqs            *SQSClient
+	sqs            *sqsClient
 }
 
 func NewApp() *App {
