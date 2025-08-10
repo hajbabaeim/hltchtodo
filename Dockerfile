@@ -1,4 +1,5 @@
 FROM golang:1.23.1-alpine AS builder
+FROM golang:1.23.1-alpine AS builder
 WORKDIR /app
 RUN apk add --no-cache \
     git \
@@ -20,10 +21,6 @@ RUN CGO_ENABLED=0 \
 RUN ./main --version 2>/dev/null || echo "Binary built successfully"
 
 FROM gcr.io/distroless/static-debian12:nonroot
-RUN apk --no-cache add \
-    ca-certificates \
-    curl \
-    tzdata
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /app/main /app/main
