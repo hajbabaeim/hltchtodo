@@ -1,11 +1,11 @@
 name: "helitech"
 version: 1.0
-environment: "local"
+environment: "docker"
 app:
   port: 8080
 database:
-  host: "localhost"
-  port: 5445
+  host: "ht-postgres"
+  port: 5432
   username: "user"
   password: "secret"
   db_name: "postgres"
@@ -21,4 +21,4 @@ sqs:
   maxRetries: 3
   waitTime: 20
   maxMessages: 10
-  endpoint: "http://localhost:4566"
+  endpoint: "http://ht-localstack:4566"

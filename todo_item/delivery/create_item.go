@@ -1,7 +1,6 @@
 package delivery
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/hajbabaeim/hltchtodo/todo_item/abstraction"
 	"github.com/hajbabaeim/hltchtodo/todo_item/domain"
@@ -23,6 +22,5 @@ func (d *createItemDelivery) handler(c *gin.Context) (*domain.TodoItem, error) {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		return nil, err
 	}
-	fmt.Printf(" + + + + + +the body: %+v\n", req)
 	return d.uc.CreateItem(ctx, &req)
 }

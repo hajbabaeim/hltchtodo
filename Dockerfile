@@ -1,5 +1,4 @@
 FROM golang:1.23.1-alpine AS builder
-FROM golang:1.23.1-alpine AS builder
 WORKDIR /app
 RUN apk add --no-cache \
     git \
@@ -17,7 +16,7 @@ RUN CGO_ENABLED=0 \
     go build \
     -ldflags='-w -s -extldflags "-static"' \
     -a -installsuffix cgo \
-    -o main main.go
+    -o main cmd/api/main.go
 RUN ./main --version 2>/dev/null || echo "Binary built successfully"
 
 FROM gcr.io/distroless/static-debian12:nonroot

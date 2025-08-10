@@ -26,8 +26,6 @@ func (uc *usecase) CreateItem(ctx context.Context, req *requests.CreateItemReque
 	}
 	item.DueDate = parsedTime
 	item.Description = req.Description
-
-	fmt.Printf(" + + + + + + item: %+v\n", item)
 	uid := uuid.New()
 	item.UUID = uid
 	if err = uc.repo.CreateItem(item); err != nil {

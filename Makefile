@@ -4,9 +4,9 @@
 build:
 	go build -o bin/todo-app main.go
 
-# Run with docker-compose
+# Run with docker compose
 run:
-	docker-compose up --build -d
+	docker compose up --build -d
 	@echo "✅ Application starting..."
 	@echo "🔗 API: http://localhost:8080"
 	@echo "🔗 Health: http://localhost:8080/health"
@@ -14,19 +14,19 @@ run:
 
 # Stop all services
 stop:
-	docker-compose down
+	docker compose down
 
 # View application logs
 logs:
-	docker-compose logs -f todo-app
+	docker compose logs -f todo-app
 
 # Check service status
 status:
-	docker-compose ps
+	docker compose ps
 
 # Clean up everything
 clean:
-	docker-compose down -v --rmi all --remove-orphans
+	docker compose down -v --rmi all --remove-orphans
 	docker system prune -f
 
 # Run tests
@@ -51,7 +51,7 @@ test-api:
 
 help:
 	@echo "Available commands:"
-	@echo "  run        - Start all services with docker-compose"
+	@echo "  run        - Start all services with docker compose"
 	@echo "  stop       - Stop all services"
 	@echo "  logs       - View application logs"
 	@echo "  status     - Check service status"

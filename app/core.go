@@ -29,7 +29,6 @@ func (a *App) initLogger() {
 
 func (a *App) initPostgres() {
 	connectionString := a.dBConnectionString()
-	fmt.Printf("--->Postgres connection string: %s\n", connectionString)
 	db, err := gorm.Open(postgres.Open(connectionString))
 	if err != nil {
 		a.panicOnError(err)
@@ -56,7 +55,6 @@ func (a *App) sqlMigrate() {
 	executor := &migrate.MigrationSet{
 		TableName: "migrations",
 	}
-	fmt.Printf("---> a.postgres: %v\n", a.postgres)
 	db, _ := a.postgres.DB()
 	n, err := executor.Exec(db, "postgres", migrationDir, migrate.Up)
 	a.panicOnError(err)

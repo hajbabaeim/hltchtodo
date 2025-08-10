@@ -39,17 +39,16 @@ type sqsConfig struct {
 	Endpoint            string `mapstructure:"endpoint"`
 }
 
-func whichConfig() string {
+func getConfigFilename() string {
 	env := os.Getenv("ENV")
 	if env == "" {
 		env = "local"
 	}
-	return env
+	return fmt.Sprintf("cmd/configs/config-%s.yaml", env)
 }
 
 func (a *App) initConfig() error {
-	filename := fmt.Sprintf("cmd/configs/config-%s.yaml", whichConfig())
-	fmt.Printf("Loading config from %s\n", filename)
+	filename := getConfigFilename()
 	viper.SetConfigFile(filename)
 	viper.SetConfigType("yaml")
 
@@ -62,6 +61,5 @@ func (a *App) initConfig() error {
 		return err
 	}
 	a.config = &cfg
-	fmt.Printf("value of config: %+v\n", a.config)
 	return nil
 }
